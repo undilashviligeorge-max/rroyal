@@ -10,7 +10,7 @@ import { exec, spawn } from "node:child_process";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const port = process.env.PORT || "3000";
-const url = `http://127.0.0.1:${port}`;
+const url = `http://127.0.0.1:${port}/en`;
 
 const nextBin =
   process.platform === "win32"
