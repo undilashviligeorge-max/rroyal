@@ -43,12 +43,12 @@ export default async function LocaleLayout({ children, params }: Props) {
           initialCurrency={initialCurrency}
           initialCountry={initialCountry}
         >
-          <div className="cosmic-root relative min-h-[100dvh] tracking-wide">
+          <div className="cosmic-root min-h-[100dvh] tracking-wide">
             <CosmicBackground />
             <LanguageGate localLocale={localLocale}>
               <>
                 <GlobalNode />
-                <div className="relative z-10">{children}</div>
+                <div className="relative z-[10]">{children}</div>
               </>
             </LanguageGate>
           </div>

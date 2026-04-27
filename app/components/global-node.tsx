@@ -1,60 +1,63 @@
 "use client";
 
 /**
- * Small wireframe “global node” — infinite reach, corner accent.
+ * Wireframe “global node” — visible cyan strokes, above page chrome.
  */
 export function GlobalNode() {
   return (
     <div
-      className="pointer-events-none fixed bottom-5 right-5 z-[35] hidden sm:block"
+      className="pointer-events-none fixed bottom-5 right-5 z-[60] sm:bottom-6 sm:right-6"
       aria-hidden
     >
       <div
-        className="relative h-14 w-14 opacity-90"
+        className="relative h-16 w-16 sm:h-[4.5rem] sm:w-[4.5rem]"
         style={{
-          perspective: "180px",
-          animation: "cosmic-node-spin 48s linear infinite",
+          perspective: "200px",
+          animation: "cosmic-node-spin 42s linear infinite",
         }}
       >
         <svg
           viewBox="0 0 64 64"
-          className="h-full w-full text-cyan-400/90 drop-shadow-[0_0_12px_rgba(34,211,238,0.45)]"
+          width="64"
+          height="64"
+          className="h-full w-full drop-shadow-[0_0_14px_rgba(34,211,238,0.65)]"
           fill="none"
+          aria-hidden
         >
           <circle
             cx="32"
             cy="32"
             r="22"
-            stroke="currentColor"
-            strokeWidth="0.6"
-            opacity="0.9"
+            stroke="#22d3ee"
+            strokeWidth="1.1"
+            opacity="0.95"
           />
           <ellipse
             cx="32"
             cy="32"
             rx="22"
             ry="9"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            opacity="0.75"
+            stroke="#38bdf8"
+            strokeWidth="0.9"
+            opacity="0.9"
           />
           <ellipse
             cx="32"
             cy="32"
             rx="9"
             ry="22"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            opacity="0.75"
+            stroke="#38bdf8"
+            strokeWidth="0.9"
+            opacity="0.9"
           />
           <ellipse
             cx="32"
             cy="32"
             rx="22"
             ry="15"
-            stroke="currentColor"
-            strokeWidth="0.35"
-            opacity="0.45"
+            stroke="#67e8f9"
+            strokeWidth="0.65"
+            opacity="0.55"
             transform="rotate(52 32 32)"
           />
           <ellipse
@@ -62,12 +65,12 @@ export function GlobalNode() {
             cy="32"
             rx="22"
             ry="15"
-            stroke="currentColor"
-            strokeWidth="0.35"
-            opacity="0.45"
+            stroke="#67e8f9"
+            strokeWidth="0.65"
+            opacity="0.55"
             transform="rotate(-38 32 32)"
           />
-          <circle cx="32" cy="32" r="2.2" fill="currentColor" opacity="0.85" />
+          <circle cx="32" cy="32" r="2.5" fill="#a5f3fc" opacity="0.95" />
         </svg>
       </div>
     </div>

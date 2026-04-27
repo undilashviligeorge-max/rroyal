@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { CosmicBackground } from "@/app/components/cosmic-background";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
@@ -49,10 +50,12 @@ export function LanguageGate({ children, localLocale }: Props) {
   if (!mounted) {
     return (
       <div
-        className="min-h-[100dvh] bg-[#050505]"
+        className="relative isolate min-h-[100dvh] bg-[#050505]"
         aria-busy="true"
         aria-label={t("loading")}
-      />
+      >
+        <CosmicBackground nested />
+      </div>
     );
   }
 
@@ -65,11 +68,12 @@ export function LanguageGate({ children, localLocale }: Props) {
         aria-labelledby="language-gate-title"
         aria-describedby="language-gate-desc"
       >
-        <div className="cosmic-starfield !absolute inset-0 opacity-100" aria-hidden />
-        <div className="cosmic-glow-orb !absolute left-1/2 top-[40%]" aria-hidden />
-        <div className="cosmic-horizon !absolute bottom-0" aria-hidden />
+        {/* Positioned box so nested absolute cosmic layers fill the viewport */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <CosmicBackground nested />
+        </div>
 
-        <div className="relative z-[1] w-full max-w-md">
+        <div className="relative z-[2] w-full max-w-md">
           <div className="cosmic-glass-panel rounded-2xl px-8 py-10 text-center">
             <p
               id="language-gate-title"

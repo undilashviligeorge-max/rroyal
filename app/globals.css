@@ -20,18 +20,18 @@
     transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(-4%, -3%, 0);
+    transform: translate3d(-3%, -2%, 0);
   }
 }
 
 @keyframes cosmic-horizon-pulse {
   0%,
   100% {
-    opacity: 0.35;
+    opacity: 0.45;
     filter: blur(0.5px);
   }
   50% {
-    opacity: 0.85;
+    opacity: 0.95;
     filter: blur(1px);
   }
 }
@@ -39,92 +39,127 @@
 @keyframes cosmic-orb-breathe {
   0%,
   100% {
-    opacity: 0.55;
+    opacity: 0.65;
     transform: translate(-50%, -50%) scale(1);
   }
   50% {
-    opacity: 0.85;
-    transform: translate(-50%, -50%) scale(1.04);
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(1.05);
   }
 }
 
 @keyframes cosmic-node-spin {
   from {
-    transform: rotate3d(0.15, 1, 0.08, 0deg);
+    transform: rotate3d(0.2, 1, 0.1, 0deg);
   }
   to {
-    transform: rotate3d(0.15, 1, 0.08, 360deg);
+    transform: rotate3d(0.2, 1, 0.1, 360deg);
   }
 }
 
 .cosmic-root {
+  position: relative;
+  isolation: isolate;
   background-color: #050505;
   color: #f4f4f5;
   letter-spacing: 0.02em;
 }
 
-.cosmic-starfield {
+/**
+ * Viewport-fixed shell: keeps stars/orb/horizon above body paint
+ * and below app content (z-10+). Inner layers are position:absolute.
+ */
+.cosmic-backdrop-shell {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
-  background-color: #050505;
+  overflow: hidden;
+}
+
+.cosmic-backdrop-shell--nested {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.cosmic-backdrop-fill {
+  position: relative;
+  height: 100%;
+  min-height: 100dvh;
+  width: 100%;
+}
+
+.cosmic-starfield {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-color: transparent;
   background-image:
-    radial-gradient(1px 1px at 8% 12%, rgba(255, 255, 255, 0.35) 50%, transparent 50%),
-    radial-gradient(1px 1px at 22% 38%, rgba(255, 255, 255, 0.22) 50%, transparent 50%),
-    radial-gradient(1px 1px at 41% 9%, rgba(255, 255, 255, 0.28) 50%, transparent 50%),
-    radial-gradient(1px 1px at 63% 24%, rgba(255, 255, 255, 0.18) 50%, transparent 50%),
-    radial-gradient(1px 1px at 78% 61%, rgba(255, 255, 255, 0.3) 50%, transparent 50%),
-    radial-gradient(1px 1px at 15% 72%, rgba(255, 255, 255, 0.15) 50%, transparent 50%),
-    radial-gradient(1px 1px at 88% 18%, rgba(255, 255, 255, 0.2) 50%, transparent 50%),
-    radial-gradient(1px 1px at 52% 84%, rgba(255, 255, 255, 0.25) 50%, transparent 50%),
-    radial-gradient(1px 1px at 91% 46%, rgba(200, 230, 255, 0.2) 50%, transparent 50%),
-    radial-gradient(1.5px 1.5px at 33% 55%, rgba(165, 243, 252, 0.35) 50%, transparent 50%);
-  background-size: 120% 120%;
-  animation: cosmic-star-drift 140s linear infinite alternate;
-  opacity: 0.9;
+    radial-gradient(1.5px 1.5px at 6% 10%, rgba(255, 255, 255, 0.95) 50%, transparent 50%),
+    radial-gradient(1px 1px at 18% 32%, rgba(255, 255, 255, 0.55) 50%, transparent 50%),
+    radial-gradient(1px 1px at 34% 8%, rgba(200, 240, 255, 0.7) 50%, transparent 50%),
+    radial-gradient(1px 1px at 52% 22%, rgba(255, 255, 255, 0.45) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 71% 14%, rgba(255, 255, 255, 0.85) 50%, transparent 50%),
+    radial-gradient(1px 1px at 84% 38%, rgba(255, 255, 255, 0.5) 50%, transparent 50%),
+    radial-gradient(1px 1px at 12% 58%, rgba(255, 255, 255, 0.4) 50%, transparent 50%),
+    radial-gradient(1px 1px at 44% 72%, rgba(165, 243, 252, 0.65) 50%, transparent 50%),
+    radial-gradient(1px 1px at 63% 64%, rgba(255, 255, 255, 0.35) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 88% 58%, rgba(255, 255, 255, 0.75) 50%, transparent 50%),
+    radial-gradient(1px 1px at 91% 22%, rgba(186, 230, 253, 0.55) 50%, transparent 50%),
+    radial-gradient(1px 1px at 26% 84%, rgba(255, 255, 255, 0.38) 50%, transparent 50%),
+    radial-gradient(1px 1px at 56% 92%, rgba(255, 255, 255, 0.42) 50%, transparent 50%),
+    radial-gradient(1px 1px at 78% 82%, rgba(224, 242, 254, 0.5) 50%, transparent 50%);
+  background-size: 110% 110%;
+  background-repeat: repeat;
+  animation: cosmic-star-drift 120s linear infinite alternate;
+  opacity: 1;
+  will-change: transform;
 }
 
 .cosmic-glow-orb {
-  position: fixed;
+  position: absolute;
   left: 50%;
-  top: 38%;
-  z-index: 0;
-  width: min(92vw, 560px);
-  height: min(92vw, 560px);
+  top: 36%;
+  z-index: 2;
+  width: min(96vw, 580px);
+  height: min(96vw, 580px);
   transform: translate(-50%, -50%);
   pointer-events: none;
   border-radius: 50%;
   background: radial-gradient(
-    circle at 35% 30%,
-    rgba(34, 211, 238, 0.22) 0%,
-    rgba(59, 130, 246, 0.12) 38%,
-    transparent 68%
+    circle at 38% 32%,
+    rgba(34, 211, 238, 0.35) 0%,
+    rgba(59, 130, 246, 0.2) 42%,
+    transparent 70%
   );
-  filter: blur(48px);
-  animation: cosmic-orb-breathe 14s ease-in-out infinite;
+  filter: blur(44px);
+  animation: cosmic-orb-breathe 12s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .cosmic-horizon {
-  position: fixed;
+  position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 0;
-  height: 2px;
+  z-index: 2;
+  height: 3px;
   pointer-events: none;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(34, 211, 238, 0.15) 20%,
-    rgba(125, 211, 252, 0.55) 50%,
-    rgba(34, 211, 238, 0.15) 80%,
+    rgba(34, 211, 238, 0.25) 18%,
+    rgba(125, 211, 252, 0.75) 50%,
+    rgba(34, 211, 238, 0.25) 82%,
     transparent 100%
   );
   box-shadow:
-    0 0 80px 24px rgba(34, 211, 238, 0.12),
-    0 0 140px 40px rgba(59, 130, 246, 0.06);
-  animation: cosmic-horizon-pulse 10s ease-in-out infinite;
+    0 0 100px 28px rgba(34, 211, 238, 0.18),
+    0 0 160px 48px rgba(59, 130, 246, 0.1);
+  animation: cosmic-horizon-pulse 8s ease-in-out infinite;
+  will-change: opacity;
 }
 
 .cosmic-glass-panel {
