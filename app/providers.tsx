@@ -3,44 +3,43 @@
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import { sepolia } from "wagmi/chains";
 import { useState, type ReactNode } from "react";
 
 import { wagmiConfig } from "@/config/wagmi";
 
-const rroyalRainbowTheme = lightTheme({
-  accentColor: "#18181b",
-  accentColorForeground: "#ffffff",
+const base = darkTheme({
+  accentColor: "#22d3ee",
+  accentColorForeground: "#020617",
   borderRadius: "large",
   fontStack: "system",
   overlayBlur: "small",
 });
 
-const bankingTheme = {
-  ...rroyalRainbowTheme,
+const cosmicWalletTheme = {
+  ...base,
   colors: {
-    ...rroyalRainbowTheme.colors,
-    modalBackground: "#ffffff",
-    modalBorder: "#e4e4e7",
-    modalText: "#18181b",
-    modalTextSecondary: "#52525b",
-    modalTextDim: "#a1a1aa",
-    generalBorder: "#e4e4e7",
-    generalBorderDim: "#f4f4f5",
-    actionButtonSecondaryBackground: "#fafafa",
-    menuItemBackground: "#fafafa",
-    connectButtonBackground: "#18181b",
-    connectButtonText: "#ffffff",
-    connectButtonInnerBackground: "#27272a",
-    modalBackdrop: "rgba(9, 9, 11, 0.45)",
+    ...base.colors,
+    modalBackground: "#0a0a0c",
+    modalBorder: "rgba(34, 211, 238, 0.2)",
+    modalText: "#f4f4f5",
+    modalTextSecondary: "#a1a1aa",
+    modalTextDim: "#71717a",
+    generalBorder: "rgba(255,255,255,0.08)",
+    generalBorderDim: "rgba(255,255,255,0.04)",
+    actionButtonSecondaryBackground: "rgba(255,255,255,0.06)",
+    menuItemBackground: "rgba(255,255,255,0.04)",
+    connectButtonBackground: "#0c0c0f",
+    connectButtonText: "#f4f4f5",
+    connectButtonInnerBackground: "#18181b",
+    modalBackdrop: "rgba(0, 0, 0, 0.75)",
   },
   shadows: {
-    ...rroyalRainbowTheme.shadows,
-    dialog:
-      "0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04)",
-    connectButton: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    ...base.shadows,
+    dialog: "0 24px 80px -20px rgba(0,0,0,0.85), 0 0 0 1px rgba(34,211,238,0.12)",
+    connectButton: "0 0 24px rgba(34,211,238,0.15)",
   },
 };
 
@@ -53,7 +52,7 @@ export function Providers({ children }: { children: ReactNode }) {
         <RainbowKitProvider
           initialChain={sepolia}
           modalSize="compact"
-          theme={bankingTheme}
+          theme={cosmicWalletTheme}
           appInfo={{
             appName: "RROYAL DEX",
             learnMoreUrl: "https://ethereum.org/en/developers/docs/networks/",

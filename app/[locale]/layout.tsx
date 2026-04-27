@@ -3,7 +3,10 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 
+import { CosmicBackground } from "@/app/components/cosmic-background";
 import { DevBrowserHint } from "@/app/components/dev-browser-hint";
+import { GlobalNode } from "@/app/components/global-node";
+import { LanguageGate } from "@/app/components/language-gate";
 import { CurrencyProvider } from "@/app/contexts/currency-provider";
 import { Providers } from "@/app/providers";
 import { routing } from "@/i18n/routing";
@@ -31,6 +34,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   const initialCountry =
     cookieStore.get("rroyal_country")?.value?.trim().toUpperCase() || null;
 
+  const localLocale = initialCountry === "ZW" ? ("sn" as const) : ("ka" as const);
+
   return (
     <NextIntlClientProvider messages={messages}>
       <Providers>
@@ -38,7 +43,15 @@ export default async function LocaleLayout({ children, params }: Props) {
           initialCurrency={initialCurrency}
           initialCountry={initialCountry}
         >
-          {children}
+          <div className="cosmic-root relative min-h-[100dvh] tracking-wide">
+            <CosmicBackground />
+            <LanguageGate localLocale={localLocale}>
+              <>
+                <GlobalNode />
+                <div className="relative z-10">{children}</div>
+              </>
+            </LanguageGate>
+          </div>
         </CurrencyProvider>
       </Providers>
       <DevBrowserHint />

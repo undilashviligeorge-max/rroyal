@@ -23,37 +23,37 @@ export function TransparencyPanel() {
 
   return (
     <section
-      className="rounded-xl border border-zinc-200 bg-white p-6"
+      className="cosmic-glass-panel rounded-2xl p-6"
       aria-labelledby="transparency-heading"
     >
       <h2
         id="transparency-heading"
-        className="text-lg font-semibold tracking-tight text-zinc-900"
+        className="text-lg font-semibold tracking-[0.08em] text-zinc-50"
       >
         {t("transparencyTitle")}
       </h2>
-      <p className="mt-1 text-sm text-zinc-500">{t("transparencySubtitle")}</p>
+      <p className="mt-1 text-sm tracking-wide text-zinc-500">{t("transparencySubtitle")}</p>
 
-      <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50/80 px-4 py-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <div className="mt-4 rounded-xl border border-cyan-500/20 bg-cyan-500/[0.06] px-4 py-3">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-cyan-200/70">
           {t("transparencyEscrowHeading")}
         </p>
-        <p className="mt-1.5 text-sm font-medium leading-snug text-zinc-900">
+        <p className="mt-1.5 text-sm font-medium leading-snug tracking-wide text-zinc-100">
           {t("transparencyEscrowBody")}
         </p>
       </div>
 
-      <dl className="mt-5 space-y-4 border-t border-zinc-100 pt-5 text-sm">
+      <dl className="mt-5 space-y-4 border-t border-white/[0.06] pt-5 text-sm">
         <div>
-          <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <dt className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-600">
             {t("transparencyNetwork")}
           </dt>
           <dd className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="font-medium text-zinc-900">{SEPOLIA_NAME}</span>
-            <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-900">
+            <span className="font-medium tracking-wide text-zinc-200">{SEPOLIA_NAME}</span>
+            <span className="rounded-lg border border-amber-400/35 bg-amber-500/10 px-2 py-0.5 text-xs font-medium tracking-wide text-amber-200">
               {t("transparencyTestnet")}
             </span>
-            <span className="font-mono text-xs text-zinc-600">
+            <span className="font-mono text-xs tracking-wide text-zinc-500">
               chainId {SEPOLIA_CHAIN_ID}
             </span>
           </dd>
@@ -61,18 +61,18 @@ export function TransparencyPanel() {
 
         {geoCountry ? (
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+            <dt className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-600">
               {t("transparencyGeo")}
             </dt>
-            <dd className="mt-1 font-mono text-sm text-zinc-700">{geoCountry}</dd>
-            <p className="mt-1 text-xs text-zinc-400">{t("transparencyGeoHint")}</p>
+            <dd className="mt-1 font-mono text-sm tracking-wide text-zinc-400">{geoCountry}</dd>
+            <p className="mt-1 text-xs tracking-wide text-zinc-600">{t("transparencyGeoHint")}</p>
           </div>
         ) : null}
 
         {configured ? (
           <>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              <dt className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-600">
                 {t("contractEscrow")}
               </dt>
               <dd className="mt-1 break-all font-mono text-xs leading-relaxed">
@@ -80,14 +80,14 @@ export function TransparencyPanel() {
                   href={`https://sepolia.etherscan.io/address/${sepoliaContracts.escrow}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-zinc-800 underline decoration-zinc-300 underline-offset-2 hover:decoration-zinc-500"
+                  className="text-cyan-200/90 underline decoration-cyan-500/30 underline-offset-2 hover:decoration-cyan-400/60"
                 >
                   {sepoliaContracts.escrow}
                 </a>
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              <dt className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-600">
                 {t("contractUsdt")}
               </dt>
               <dd className="mt-1 break-all font-mono text-xs leading-relaxed">
@@ -95,7 +95,7 @@ export function TransparencyPanel() {
                   href={`https://sepolia.etherscan.io/address/${sepoliaContracts.mockUsdt}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-zinc-800 underline decoration-zinc-300 underline-offset-2 hover:decoration-zinc-500"
+                  className="text-cyan-200/90 underline decoration-cyan-500/30 underline-offset-2 hover:decoration-cyan-400/60"
                 >
                   {sepoliaContracts.mockUsdt}
                 </a>
@@ -103,7 +103,7 @@ export function TransparencyPanel() {
             </div>
           </>
         ) : (
-          <p className="text-xs text-zinc-400">{t("transparencyNoContracts")}</p>
+          <p className="text-xs tracking-wide text-zinc-600">{t("transparencyNoContracts")}</p>
         )}
       </dl>
     </section>

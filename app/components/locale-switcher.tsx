@@ -11,7 +11,7 @@ export function LocaleSwitcher() {
 
   return (
     <nav
-      className="flex shrink-0 items-center gap-0.5 rounded-lg border border-zinc-200 bg-white p-0.5"
+      className="flex shrink-0 items-center gap-0.5 rounded-xl border border-white/10 bg-black/40 p-0.5"
       aria-label="Language"
     >
       {routing.locales.map((loc) => (
@@ -19,10 +19,10 @@ export function LocaleSwitcher() {
           key={loc}
           href={pathname}
           locale={loc}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-medium ${
+          className={`rounded-lg px-2.5 py-1.5 text-xs font-medium tracking-[0.12em] transition ${
             loc === locale
-              ? "bg-zinc-900 text-white"
-              : "text-zinc-500 hover:text-zinc-900"
+              ? "border border-cyan-500/30 bg-cyan-500/20 text-cyan-100 shadow-[0_0_16px_rgba(34,211,238,0.15)]"
+              : "text-zinc-500 hover:text-zinc-200"
           }`}
         >
           {loc === "en" ? "EN" : loc === "ka" ? "KA" : "SN"}

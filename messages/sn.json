@@ -6,6 +6,15 @@
   "nav": {
     "home": "Kumba"
   },
+  "LanguageGate": {
+    "question": "Ndiani interface inokunakidza zvikuru?",
+    "subtitle": "Chipiri che liquidity yepasi rose — changa mutauro unobva pamusoro mushure.",
+    "english": "English",
+    "localKa": "ქართული",
+    "localSn": "ChiShona",
+    "allLocalesHint": "EN · ქართული · ChiShona — zvose zviripo mushure mekupinda.",
+    "loading": "Interface ichiwana"
+  },
   "Home": {
     "eyebrow": "Global P2P · USDT ↔ mari yenzomwe",
     "heroTitle": "Mitengo yakajeka. Escrow pamuchinjikwa.",

@@ -6,6 +6,15 @@
   "nav": {
     "home": "Home"
   },
+  "LanguageGate": {
+    "question": "Which interface suits you better?",
+    "subtitle": "A portal into global liquidity — switch languages anytime from the header.",
+    "english": "English",
+    "localKa": "ქართული",
+    "localSn": "ChiShona",
+    "allLocalesHint": "EN · ქართული · ChiShona — all available after you enter.",
+    "loading": "Loading interface"
+  },
   "Home": {
     "eyebrow": "Global P2P · USDT ↔ local fiat",
     "heroTitle": "Clear pricing. On-chain escrow.",
