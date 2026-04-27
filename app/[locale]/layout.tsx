@@ -7,9 +7,10 @@ import { CosmicBackground } from "@/app/components/cosmic-background";
 import { DevBrowserHint } from "@/app/components/dev-browser-hint";
 import { GlobalNode } from "@/app/components/global-node";
 import { LanguageGate } from "@/app/components/language-gate";
-import { CurrencyProvider } from "@/app/contexts/currency-provider";
+import { PriceProvider } from "@/app/contexts/price-provider";
 import { Providers } from "@/app/providers";
 import { routing } from "@/i18n/routing";
+import { getGlobalRates } from "@/lib/global-rates";
 
 type Props = {
   children: React.ReactNode;
@@ -33,15 +34,18 @@ export default async function LocaleLayout({ children, params }: Props) {
     cookieStore.get("rroyal_currency")?.value?.trim().toUpperCase() || "USD";
   const initialCountry =
     cookieStore.get("rroyal_country")?.value?.trim().toUpperCase() || null;
+  const initialRates = await getGlobalRates().catch(() => null);
 
   const localLocale = initialCountry === "ZW" ? ("sn" as const) : ("ka" as const);
 
   return (
     <NextIntlClientProvider messages={messages}>
       <Providers>
-        <CurrencyProvider
+        <PriceProvider
           initialCurrency={initialCurrency}
           initialCountry={initialCountry}
+          initialRates={initialRates}
+          locale={locale}
         >
           <div className="cosmic-root min-h-[100dvh] tracking-wide">
             <CosmicBackground />
@@ -52,7 +56,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               </>
             </LanguageGate>
           </div>
-        </CurrencyProvider>
+        </PriceProvider>
       </Providers>
       <DevBrowserHint />
     </NextIntlClientProvider>

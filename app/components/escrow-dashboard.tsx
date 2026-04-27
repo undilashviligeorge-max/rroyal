@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { useCurrency } from "../contexts/currency-provider";
+import { useCurrency } from "../contexts/price-provider";
 
 const MOCK_ESCROWS = [
   { id: "1042", roleKey: "escrowRowSeller" as const, usdt: "500.00", statusKey: "escrowStatusLocked" as const },

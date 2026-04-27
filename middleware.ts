@@ -30,7 +30,7 @@ export default function middleware(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 400,
       sameSite: "lax",
     });
-    res.cookies.set("rroyal_currency", "ZWL", {
+    res.cookies.set("rroyal_currency", "ZWG", {
       path: "/",
       maxAge: 60 * 60 * 24 * 400,
       sameSite: "lax",
@@ -50,7 +50,7 @@ export default function middleware(request: NextRequest) {
 
   if (!request.cookies.get("rroyal_currency")?.value) {
     let cur = "USD";
-    if (country === "ZW") cur = "ZWL";
+    if (country === "ZW") cur = "ZWG";
     else if (country === "GE") cur = "GEL";
     response.cookies.set("rroyal_currency", cur, {
       path: "/",

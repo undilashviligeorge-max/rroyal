@@ -16,7 +16,8 @@ import {
 import { isSepoliaContractsConfigured, sepoliaContracts } from "@/config/contracts";
 import { rroyalEscrowAbi } from "@/config/rroyal-escrow-abi";
 
-import { useCurrency } from "../contexts/currency-provider";
+import { RateTrustBadge } from "./rate-trust-badge";
+import { getRateFractionDigits, useCurrency } from "../contexts/price-provider";
 
 type Side = "buy" | "sell";
 
@@ -263,11 +264,12 @@ export function TradeBox() {
                     side: side === "buy" ? t("tradeBuy") : t("tradeSell"),
                     fiat: currency,
                     rate: usdtInFiat.toLocaleString(undefined, {
-                      maximumFractionDigits: 4,
+                      maximumFractionDigits: getRateFractionDigits(currency, usdtInFiat),
                     }),
                   })
                 : "—"}
           </p>
+          <RateTrustBadge />
         </div>
 
         {side === "sell" ? (

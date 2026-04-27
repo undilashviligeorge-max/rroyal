@@ -2,12 +2,12 @@
 
 import { useTranslations } from "next-intl";
 
-import { useCurrency } from "../contexts/currency-provider";
+import { useCurrency } from "../contexts/price-provider";
 
 function isSmartPair(country: string | null, currency: string): boolean {
   if (!country) return false;
   if (country === "GE" && currency === "GEL") return true;
-  if (country === "ZW" && currency === "ZWL") return true;
+  if (country === "ZW" && (currency === "ZWG" || currency === "ZWL")) return true;
   return false;
 }
 

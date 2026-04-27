@@ -2,7 +2,8 @@
 
 import { useFormatter, useTranslations } from "next-intl";
 
-import { useCurrency } from "../contexts/currency-provider";
+import { RateTrustBadge } from "./rate-trust-badge";
+import { getRateFractionDigits, useCurrency } from "../contexts/price-provider";
 
 export function UsdtFiatReference() {
   const t = useTranslations("Home");
@@ -11,28 +12,37 @@ export function UsdtFiatReference() {
 
   if (loading) {
     return (
-      <p className="mt-2 font-mono text-sm tabular-nums tracking-wide text-zinc-600">
-        {t("ratesStale")}
-      </p>
+      <>
+        <p className="mt-2 font-mono text-sm tabular-nums tracking-wide text-zinc-600">
+          {t("ratesStale")}
+        </p>
+        <RateTrustBadge />
+      </>
     );
   }
 
   if (usdtInFiat == null) {
     return (
-      <p className="mt-2 font-mono text-sm tabular-nums tracking-wide text-zinc-500">
-        1 USDT ≈ — {currency}
-      </p>
+      <>
+        <p className="mt-2 font-mono text-sm tabular-nums tracking-wide text-zinc-500">
+          1 USDT ≈ — {currency}
+        </p>
+        <RateTrustBadge />
+      </>
     );
   }
 
   const amount = format.number(usdtInFiat, {
-    maximumFractionDigits: 4,
+    maximumFractionDigits: getRateFractionDigits(currency, usdtInFiat),
     minimumFractionDigits: 2,
   });
 
   return (
-    <p className="mt-2 font-mono text-lg font-medium tabular-nums tracking-wide text-cyan-100 sm:text-xl">
-      {t("usdtReference", { amount, code: currency })}
-    </p>
+    <>
+      <p className="mt-2 font-mono text-lg font-medium tabular-nums tracking-wide text-cyan-100 sm:text-xl">
+        {t("usdtReference", { amount, code: currency })}
+      </p>
+      <RateTrustBadge />
+    </>
   );
 }
