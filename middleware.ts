@@ -5,6 +5,24 @@ import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
+/**
+ * Default `/ru` for post-Soviet states where Russian UI is typical (includes UA, KZ).
+ * Georgia (`GE`) is routed to `/ka` separately — primary market.
+ */
+const POST_SOVIET_RU_DEFAULT = new Set([
+  "RU",
+  "BY",
+  "UA",
+  "MD",
+  "AM",
+  "AZ",
+  "KZ",
+  "KG",
+  "TJ",
+  "TM",
+  "UZ",
+]);
+
 function countryFrom(request: NextRequest): string {
   const h =
     request.headers.get("x-vercel-ip-country") ||
@@ -13,46 +31,71 @@ function countryFrom(request: NextRequest): string {
   return "";
 }
 
-export default function middleware(request: NextRequest) {
-  const country = countryFrom(request);
-  const pathname = request.nextUrl.pathname;
+function geoLocaleForCountry(country: string): "ka" | "ru" | "en" {
+  if (country === "GE") return "ka";
+  if (POST_SOVIET_RU_DEFAULT.has(country)) return "ru";
+  return "en";
+}
 
-  if (
-    country === "ZW" &&
-    !request.cookies.get("rroyal_geo_locale")?.value &&
-    (pathname === "/" || pathname === "")
-  ) {
+export default function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const country = countryFrom(request);
+
+  if (pathname.startsWith("/sn")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/sn";
+    url.pathname = pathname.replace(/^\/sn/, "/ru") || "/ru";
+    return NextResponse.redirect(url, 308);
+  }
+
+  if (pathname === "/" || pathname === "") {
+    const pref = request.cookies.get("smrt_pref_locale")?.value;
+    let target: "en" | "ka" | "ru";
+    if (pref === "en" || pref === "ka" || pref === "ru") {
+      target = pref;
+    } else {
+      target = geoLocaleForCountry(country);
+    }
+
+    const url = request.nextUrl.clone();
+    url.pathname = `/${target}`;
     const res = NextResponse.redirect(url);
-    res.cookies.set("rroyal_geo_locale", "1", {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 400,
-      sameSite: "lax",
-    });
-    res.cookies.set("rroyal_currency", "ZWG", {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 400,
-      sameSite: "lax",
-    });
+    if (country) {
+      res.cookies.set("smrt_country", country, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: "lax",
+      });
+    }
+    if (!request.cookies.get("smrt_currency")?.value) {
+      let cur = "USD";
+      if (country === "GE") cur = "GEL";
+      else if (country === "UA") cur = "UAH";
+      else if (country === "KZ") cur = "KZT";
+      res.cookies.set("smrt_currency", cur, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 400,
+        sameSite: "lax",
+      });
+    }
     return res;
   }
 
   const response = intlMiddleware(request);
 
   if (country) {
-    response.cookies.set("rroyal_country", country, {
+    response.cookies.set("smrt_country", country, {
       path: "/",
       maxAge: 60 * 60 * 24 * 30,
       sameSite: "lax",
     });
   }
 
-  if (!request.cookies.get("rroyal_currency")?.value) {
+  if (!request.cookies.get("smrt_currency")?.value) {
     let cur = "USD";
-    if (country === "ZW") cur = "ZWG";
-    else if (country === "GE") cur = "GEL";
-    response.cookies.set("rroyal_currency", cur, {
+    if (country === "GE") cur = "GEL";
+    else if (country === "UA") cur = "UAH";
+    else if (country === "KZ") cur = "KZT";
+    response.cookies.set("smrt_currency", cur, {
       path: "/",
       maxAge: 60 * 60 * 24 * 400,
       sameSite: "lax",
@@ -65,7 +108,7 @@ export default function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/(en|ka|sn)/:path*",
+    "/(en|ka|ru)/:path*",
     "/((?!api|_next|_vercel|.*\\..*).*)",
   ],
 };

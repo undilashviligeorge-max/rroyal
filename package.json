@@ -1,5 +1,5 @@
 {
-  "name": "rroyal-dex",
+  "name": "smrt-money",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -21,6 +21,7 @@
     "next-intl": "^4.9.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "three": "^0.176.0",
     "viem": "^2.48.4",
     "wagmi": "^2.19.5"
   },
@@ -33,6 +34,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.176.0",
     "chai": "^4.5.0",
     "dotenv": "^16.4.5",
     "eslint": "^9",

@@ -6,8 +6,10 @@ import { useCurrency } from "../contexts/price-provider";
 
 function isSmartPair(country: string | null, currency: string): boolean {
   if (!country) return false;
-  if (country === "GE" && currency === "GEL") return true;
-  if (country === "ZW" && (currency === "ZWG" || currency === "ZWL")) return true;
+  const c = currency.toUpperCase();
+  if (country === "GE" && c === "GEL") return true;
+  if (country === "UA" && c === "UAH") return true;
+  if (country === "KZ" && c === "KZT") return true;
   return false;
 }
 
@@ -16,7 +18,9 @@ export function CurrencySwitcher() {
   const { currency, setCurrency, rates, loading, countryCode } = useCurrency();
 
   const codes = rates
-    ? Object.keys(rates).sort((a, b) => a.localeCompare(b))
+    ? Object.keys(rates)
+        .filter((c) => c !== "ZWG" && c !== "ZWL")
+        .sort((a, b) => a.localeCompare(b))
     : [];
 
   const smart = isSmartPair(countryCode, currency);
@@ -31,7 +35,7 @@ export function CurrencySwitcher() {
           value={codes.includes(currency) ? currency : "USD"}
           disabled={loading || codes.length === 0}
           onChange={(e) => setCurrency(e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm font-medium tracking-wide text-zinc-100 focus:border-cyan-500/40 focus:outline-none focus:ring-1 focus:ring-cyan-500/25 disabled:opacity-50"
+          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm font-medium tracking-wide text-zinc-100 focus:border-emerald-500/40 focus:outline-none focus:ring-1 focus:ring-emerald-500/25 disabled:opacity-50"
         >
           {codes.length === 0 ? (
             <option value="USD">USD</option>

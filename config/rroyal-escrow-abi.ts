@@ -9,6 +9,8 @@ export const rroyalEscrowAbi = [
       { name: "usdtAmount", type: "uint256" },
       { name: "fiatAmount", type: "uint256" },
       { name: "fiatCurrency", type: "uint8" },
+      { name: "pricingMode", type: "uint8" },
+      { name: "rateSnapshotE6", type: "uint256" },
     ],
     outputs: [{ name: "orderId", type: "uint256" }],
   },
@@ -22,6 +24,9 @@ export const rroyalEscrowAbi = [
       { name: "usdtAmount", type: "uint256", indexed: false },
       { name: "fiatAmount", type: "uint256", indexed: false },
       { name: "fiatCurrency", type: "uint8", indexed: false },
+      { name: "pricingMode", type: "uint8", indexed: false },
+      { name: "rateSnapshotE6", type: "uint256", indexed: false },
+      { name: "expiresAt", type: "uint64", indexed: false },
     ],
   },
 ] as const;

@@ -7,17 +7,21 @@ import { CosmicBackground } from "@/app/components/cosmic-background";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
-const STORAGE_KEY = "rroyal_cosmic_gate_v1";
+const STORAGE_KEY = "smrt_gate_v1";
+const LOCALE_COOKIE = "smrt_pref_locale";
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 400;
 
 type Locale = (typeof routing.locales)[number];
 
+function setLocalePreferenceCookie(locale: Locale) {
+  document.cookie = `${LOCALE_COOKIE}=${locale};path=/;max-age=${COOKIE_MAX_AGE};SameSite=Lax`;
+}
+
 type Props = {
   children: ReactNode;
-  /** Secondary choice: Georgian or Shona (from region cookie) */
-  localLocale: Extract<Locale, "ka" | "sn">;
 };
 
-export function LanguageGate({ children, localLocale }: Props) {
+export function LanguageGate({ children }: Props) {
   const t = useTranslations("LanguageGate");
   const router = useRouter();
   const pathname = usePathname();
@@ -41,11 +45,10 @@ export function LanguageGate({ children, localLocale }: Props) {
     } catch {
       /* ignore */
     }
+    setLocalePreferenceCookie(next);
     setShowOverlay(false);
     router.replace(pathname, { locale: next });
   };
-
-  const localLabel = localLocale === "sn" ? t("localSn") : t("localKa");
 
   if (!mounted) {
     return (
@@ -68,12 +71,11 @@ export function LanguageGate({ children, localLocale }: Props) {
         aria-labelledby="language-gate-title"
         aria-describedby="language-gate-desc"
       >
-        {/* Positioned box so nested absolute cosmic layers fill the viewport */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <CosmicBackground nested />
         </div>
 
-        <div className="relative z-[2] w-full max-w-md">
+        <div className="relative z-[2] w-full max-w-lg">
           <div className="cosmic-glass-panel rounded-2xl px-8 py-10 text-center">
             <p
               id="language-gate-title"
@@ -88,26 +90,40 @@ export function LanguageGate({ children, localLocale }: Props) {
               {t("subtitle")}
             </p>
 
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => dismiss("ka")}
+                className="btn-cosmic-aura rounded-xl border border-emerald-500/25 bg-emerald-500/[0.08] px-5 py-3.5 text-sm font-medium tracking-[0.12em] text-emerald-50"
+              >
+                <span aria-hidden className="mr-2">
+                  🇬🇪
+                </span>
+                {t("localKa")}
+              </button>
               <button
                 type="button"
                 onClick={() => dismiss("en")}
-                className="btn-cosmic-aura rounded-xl border border-white/10 bg-white/[0.04] px-8 py-3.5 text-sm font-medium tracking-[0.14em] text-zinc-100"
+                className="btn-cosmic-aura rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3.5 text-sm font-medium tracking-[0.14em] text-zinc-100"
               >
+                <span aria-hidden className="mr-2">
+                  🇺🇸
+                </span>
                 {t("english")}
               </button>
               <button
                 type="button"
-                onClick={() => dismiss(localLocale)}
-                className="btn-cosmic-aura rounded-xl border border-cyan-500/25 bg-cyan-500/[0.08] px-8 py-3.5 text-sm font-medium tracking-[0.12em] text-cyan-50"
+                onClick={() => dismiss("ru")}
+                className="btn-cosmic-aura rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3.5 text-sm font-medium tracking-[0.14em] text-zinc-100"
               >
-                {localLabel}
+                <span aria-hidden className="mr-2">
+                  🇷🇺
+                </span>
+                {t("localRu")}
               </button>
             </div>
 
-            <p className="mt-10 text-xs tracking-wide text-zinc-600">
-              {t("allLocalesHint")}
-            </p>
+            <p className="mt-10 text-xs tracking-wide text-zinc-600">{t("allLocalesHint")}</p>
           </div>
         </div>
       </div>

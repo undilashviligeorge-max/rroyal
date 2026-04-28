@@ -13,14 +13,16 @@ describe("RroyalP2PEscrow", function () {
     const Escrow = await ethers.getContractFactory("RroyalP2PEscrow");
     const escrow = await Escrow.deploy(await usdt.getAddress(), admin.address);
     await escrow.waitForDeployment();
+    await usdt.connect(admin).transfer(seller.address, 20_000n * USDT_UNIT);
     return { admin, seller, buyer, stranger, usdt, escrow };
   }
 
   it("createLockedTrade → releaseUSDT (happy path)", async function () {
-    const { seller, buyer, usdt, escrow } = await deployFixture();
+    const { admin, seller, buyer, usdt, escrow } = await deployFixture();
     const amount = 1_000n * USDT_UNIT;
+    await escrow.connect(admin).setUserTier(seller.address, 2);
     await usdt.connect(seller).approve(await escrow.getAddress(), amount);
-    await escrow.connect(seller).createLockedTrade(amount, buyer.address, 2680n, 1);
+    await escrow.connect(seller).createLockedTrade(amount, buyer.address, 2680n, 1, 0, 2_680_000n);
     const orderId = 1n;
     const before = await usdt.balanceOf(buyer.address);
     await escrow.connect(seller).releaseUSDT(orderId);
@@ -34,7 +36,7 @@ describe("RroyalP2PEscrow", function () {
     const amount = 501n * USDT_UNIT;
     await usdt.connect(seller).approve(await escrow.getAddress(), amount);
     await expect(
-      escrow.connect(seller).createLockedTrade(amount, buyer.address, 1n, 0)
+      escrow.connect(seller).createLockedTrade(amount, buyer.address, 1n, 0, 0, 1_000_000n)
     ).to.be.revertedWithCustomError(escrow, "TierLimitExceeded");
   });
 
@@ -44,7 +46,7 @@ describe("RroyalP2PEscrow", function () {
     const amount = 2_000n * USDT_UNIT;
     await usdt.connect(seller).approve(await escrow.getAddress(), amount);
     await expect(
-      escrow.connect(seller).createLockedTrade(amount, buyer.address, 1n, 0)
+      escrow.connect(seller).createLockedTrade(amount, buyer.address, 1n, 0, 0, 1_000_000n)
     ).to.not.be.reverted;
   });
 
@@ -52,7 +54,7 @@ describe("RroyalP2PEscrow", function () {
     const { seller, buyer, stranger, usdt, escrow } = await deployFixture();
     const amount = 100n * USDT_UNIT;
     await usdt.connect(seller).approve(await escrow.getAddress(), amount);
-    await escrow.connect(seller).createLockedTrade(amount, buyer.address, 1n, 0);
+    await escrow.connect(seller).createLockedTrade(amount, buyer.address, 1n, 0, 0, 1_000_000n);
     const orderId = 1n;
     await time.increase(15 * 60 + 1);
     const before = await usdt.balanceOf(seller.address);
@@ -66,7 +68,7 @@ describe("RroyalP2PEscrow", function () {
     const { admin, seller, buyer, usdt, escrow } = await deployFixture();
     const amount = 200n * USDT_UNIT;
     await usdt.connect(seller).approve(await escrow.getAddress(), amount);
-    await escrow.connect(seller).createLockedTrade(amount, buyer.address, 1n, 0);
+    await escrow.connect(seller).createLockedTrade(amount, buyer.address, 1n, 0, 0, 1_000_000n);
     const orderId = 1n;
     await escrow.connect(buyer).openDispute(orderId);
     const before = await usdt.balanceOf(buyer.address);
@@ -77,7 +79,7 @@ describe("RroyalP2PEscrow", function () {
   it("createTrade + lockUSDT two-step flow", async function () {
     const { seller, buyer, usdt, escrow } = await deployFixture();
     const amount = 300n * USDT_UNIT;
-    await escrow.connect(seller).createTrade(buyer.address, amount, 100n, 0);
+    await escrow.connect(seller).createTrade(buyer.address, amount, 100n, 0, 0, 1_000_000n);
     const orderId = 1n;
     expect((await escrow.trades(orderId)).status).to.equal(1n);
     await usdt.connect(seller).approve(await escrow.getAddress(), amount);

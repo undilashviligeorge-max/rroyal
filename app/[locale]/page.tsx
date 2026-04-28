@@ -3,16 +3,21 @@ import { notFound } from "next/navigation";
 
 import { ConnectWallet } from "@/app/components/connect-wallet";
 import { EscrowDashboard } from "@/app/components/escrow-dashboard";
+import { OrderBook } from "@/app/components/order-book";
 import { TradeBox } from "@/app/components/trade-box";
 import { TransparencyPanel } from "@/app/components/transparency-panel";
+import { ValueProposition } from "@/app/components/value-proposition";
+import { ComparisonPanel } from "@/app/components/comparison-panel";
+import { SmartRateCalculator } from "@/app/components/smart-rate-calculator";
+import SmartCalculator from "@/app/components/smart-calculator";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { getOracleSnapshot } from "@/lib/engine/oracle";
+import { regionalHubForLocale } from "@/lib/modules/regional-hub";
 
 import { CurrencySwitcher } from "../components/currency-switcher";
 import { LocaleSwitcher } from "../components/locale-switcher";
 import { UsdtFiatReference } from "../components/usdt-fiat-reference";
-
-const OFFICIAL_RATE = "2.68 GEL";
 
 const ORDER_ROWS = [
   {
@@ -61,23 +66,41 @@ export default async function Home({ params }: PageProps) {
   }
   setRequestLocale(locale);
   const t = await getTranslations("Home");
+  const hub = regionalHubForLocale(locale);
+  const oracle = await getOracleSnapshot().catch(() => null);
+  const pegNum = oracle?.rates?.[hub.pegFiat];
+  const pegRateStr =
+    typeof pegNum === "number" && Number.isFinite(pegNum)
+      ? `${pegNum.toFixed(hub.pegFiat === "RUB" || hub.pegFiat === "USD" ? 2 : 4)} ${hub.pegFiat}`
+      : hub.pegFiat === "GEL"
+        ? "2.68 GEL"
+        : hub.pegFiat === "RUB"
+          ? "— RUB"
+          : "1.00 USD";
+  const bankRefLabel =
+    hub.bankRefMessageKey === "hubBankRefNBG"
+      ? t("hubBankRefNBG")
+      : hub.bankRefMessageKey === "hubBankRefCBR"
+        ? t("hubBankRefCBR")
+        : t("hubBankRefComposite");
 
   return (
     <div className="min-h-[100dvh] text-zinc-100">
-      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#050505]/75 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/[0.05] bg-[#050d14]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link
             href="/"
             className="flex items-center gap-3 font-semibold tracking-[0.08em] text-zinc-100"
           >
             <span
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-cyan-500/25 bg-cyan-500/10 text-sm font-bold text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-sm font-bold text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.25)]"
               aria-hidden
             >
-              R
+              S
             </span>
             <span className="text-base sm:text-lg">
-              RROYAL <span className="font-normal tracking-[0.12em] text-zinc-500">DEX</span>
+              SMRT{" "}
+              <span className="font-normal tracking-[0.12em] text-slate-400">/ MONEY</span>
             </span>
           </Link>
           <div className="flex flex-wrap items-center justify-end gap-3">
@@ -89,17 +112,16 @@ export default async function Home({ params }: PageProps) {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-        <header className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-200/70">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-4 text-balance text-3xl font-semibold tracking-[0.06em] text-zinc-50 sm:text-4xl">
-            {t("heroTitle")}
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed tracking-wide text-zinc-400 sm:text-base">
-            {t("heroSubtitle")}
-          </p>
-        </header>
+        <ValueProposition />
+
+        {/* ── Quantum Jump Calculator — hero-section, replaces old exchange form ── */}
+        <div className="mx-auto mt-10 max-w-md">
+          <SmartCalculator />
+        </div>
+
+        <ComparisonPanel />
+
+        <SmartRateCalculator />
 
         <div className="mx-auto mt-10 max-w-md">
           <div className="cosmic-glass-panel rounded-2xl p-5 sm:p-6">
@@ -110,7 +132,11 @@ export default async function Home({ params }: PageProps) {
                 </p>
                 <UsdtFiatReference />
                 <p className="mt-3 text-xs tracking-wide text-zinc-500">
-                  {t("pegNote", { rate: OFFICIAL_RATE, official: t("official") })}
+                  {t("pegNoteHub", {
+                    bankRef: bankRefLabel,
+                    rate: pegRateStr,
+                    official: t("official"),
+                  })}
                 </p>
               </div>
               <div className="shrink-0 text-right">
@@ -145,7 +171,7 @@ export default async function Home({ params }: PageProps) {
               </h2>
               <p className="text-sm tracking-wide text-zinc-500">{t("orderBookSubtitle")}</p>
             </div>
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-200/60">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-300/60">
               {t("orderBookBadge")}
             </p>
           </div>
@@ -157,76 +183,11 @@ export default async function Home({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="cosmic-glass-panel overflow-hidden rounded-xl">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-white/[0.06] bg-white/[0.03]">
-                    <th className="px-4 py-3 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                      {t("tableSeller")}
-                    </th>
-                    <th className="px-4 py-3 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                      {t("tableAmount")}
-                    </th>
-                    <th className="px-4 py-3 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                      {t("tableRate")}
-                    </th>
-                    <th className="px-4 py-3 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                      {t("tableFee")}
-                    </th>
-                    <th className="px-4 py-3 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                      {t("tableBank")}
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                      {t("tableAction")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.05]">
-                  {ORDER_ROWS.map((row) => (
-                    <tr key={`${row.seller}-${row.amount}`} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-3.5 font-medium tracking-wide text-zinc-200">
-                        {row.seller}
-                      </td>
-                      <td className="px-4 py-3.5 tabular-nums tracking-wide text-zinc-400">
-                        {row.amount}
-                      </td>
-                      <td className="px-4 py-3.5 tabular-nums tracking-wide text-zinc-300">
-                        {OFFICIAL_RATE}{" "}
-                        <span className="text-xs font-normal tracking-wide text-zinc-600">
-                          {t("official")}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span
-                          className={
-                            row.variant === "bonus"
-                              ? "inline-flex rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium tracking-wide text-emerald-200"
-                              : "inline-flex rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs font-medium tracking-wide text-zinc-400"
-                          }
-                        >
-                          {row.platformLabel}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 tracking-wide text-zinc-500">{row.bank}</td>
-                      <td className="px-4 py-3.5 text-right">
-                        <button
-                          type="button"
-                          className="btn-cosmic-aura rounded-lg border border-cyan-400/40 bg-cyan-500/15 px-3 py-1.5 text-xs font-medium tracking-[0.12em] text-cyan-100 focus-visible:outline focus-visible:ring-2 focus-visible:ring-cyan-400/50"
-                        >
-                          {t("buyUsdt")}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <OrderBook rows={ORDER_ROWS} />
         </section>
       </main>
 
-      <footer className="mt-auto border-t border-white/[0.06] bg-[#050505]/80 py-8 backdrop-blur-sm">
+      <footer className="mt-auto border-t border-white/[0.05] bg-[#050d14]/80 py-8 backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4 text-center text-xs tracking-wide text-zinc-600 sm:px-6">
           © {new Date().getFullYear()} {t("footer")}
         </div>

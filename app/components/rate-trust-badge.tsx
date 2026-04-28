@@ -38,7 +38,7 @@ export function RateTrustBadge() {
 
   const wrapClass = stale
     ? "border-amber-400/35 bg-amber-500/10 text-amber-100"
-    : "border-cyan-400/30 bg-cyan-500/10 text-cyan-100";
+    : "border-emerald-400/30 bg-emerald-500/10 text-emerald-100";
 
   return (
     <div

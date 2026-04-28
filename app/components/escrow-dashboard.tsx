@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 import { useCurrency } from "../contexts/price-provider";
 
 const MOCK_ESCROWS = [
-  { id: "1042", roleKey: "escrowRowSeller" as const, usdt: "500.00", statusKey: "escrowStatusLocked" as const },
-  { id: "1041", roleKey: "escrowRowBuyer" as const, usdt: "120.00", statusKey: "escrowStatusPending" as const },
-  { id: "1038", roleKey: "escrowRowSeller" as const, usdt: "2,000.00", statusKey: "escrowStatusDisputed" as const },
+  { id: "1042", roleKey: "escrowRowSeller" as const, usdt: "500.00", statusKey: "escrowStatusLocked" as const, lockMin: 8 },
+  { id: "1041", roleKey: "escrowRowBuyer" as const, usdt: "120.00", statusKey: "escrowStatusPending" as const, lockMin: 13 },
+  { id: "1038", roleKey: "escrowRowSeller" as const, usdt: "2,000.00", statusKey: "escrowStatusDisputed" as const, lockMin: 0 },
 ] as const;
 
 export function EscrowDashboard() {
@@ -36,6 +36,7 @@ export function EscrowDashboard() {
               <th className="py-2 pr-3 font-medium">{t("escrowColRole")}</th>
               <th className="py-2 pr-3 font-medium">{t("escrowColUsdt")}</th>
               <th className="py-2 pr-3 font-medium">{t("escrowColFiat")}</th>
+              <th className="py-2 pr-3 font-medium">{t("escrowColLock")}</th>
               <th className="py-2 font-medium">{t("escrowColStatus")}</th>
             </tr>
           </thead>
@@ -49,6 +50,9 @@ export function EscrowDashboard() {
                 <td className="py-3 pr-3 font-mono tabular-nums tracking-wide">{row.usdt}</td>
                 <td className="py-3 pr-3 font-mono text-xs tabular-nums tracking-wide text-zinc-500">
                   {t("escrowFiatDemo", { code: currency })}
+                </td>
+                <td className="py-3 pr-3 text-xs tracking-wide text-zinc-500">
+                  {row.lockMin > 0 ? t("escrowLockActive", { mins: row.lockMin }) : t("escrowLockExpired")}
                 </td>
                 <td className="py-3">
                   <span className="rounded-lg border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs font-medium tracking-wide text-zinc-400">

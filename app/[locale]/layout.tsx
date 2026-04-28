@@ -7,10 +7,12 @@ import { CosmicBackground } from "@/app/components/cosmic-background";
 import { DevBrowserHint } from "@/app/components/dev-browser-hint";
 import { GlobalNode } from "@/app/components/global-node";
 import { LanguageGate } from "@/app/components/language-gate";
+import { LocaleHtmlLang } from "@/app/components/locale-html-lang";
 import { PriceProvider } from "@/app/contexts/price-provider";
+import { TradeIntentProvider } from "@/app/contexts/trade-intent-provider";
 import { Providers } from "@/app/providers";
 import { routing } from "@/i18n/routing";
-import { getGlobalRates } from "@/lib/global-rates";
+import { getOracleSnapshot } from "@/lib/engine/oracle";
 
 type Props = {
   children: React.ReactNode;
@@ -30,13 +32,16 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
   const messages = await getMessages();
   const cookieStore = await cookies();
+  const rawCur = cookieStore.get("smrt_currency")?.value?.trim().toUpperCase() || "";
   const initialCurrency =
-    cookieStore.get("rroyal_currency")?.value?.trim().toUpperCase() || "USD";
+    locale === "ka"
+      ? rawCur && rawCur !== "ZWG" && rawCur !== "ZWL"
+        ? rawCur
+        : "GEL"
+      : rawCur || "USD";
   const initialCountry =
-    cookieStore.get("rroyal_country")?.value?.trim().toUpperCase() || null;
-  const initialRates = await getGlobalRates().catch(() => null);
-
-  const localLocale = initialCountry === "ZW" ? ("sn" as const) : ("ka" as const);
+    cookieStore.get("smrt_country")?.value?.trim().toUpperCase() || null;
+  const initialOracle = await getOracleSnapshot().catch(() => null);
 
   return (
     <NextIntlClientProvider messages={messages}>
@@ -44,18 +49,21 @@ export default async function LocaleLayout({ children, params }: Props) {
         <PriceProvider
           initialCurrency={initialCurrency}
           initialCountry={initialCountry}
-          initialRates={initialRates}
+          initialOracle={initialOracle}
           locale={locale}
         >
-          <div className="cosmic-root min-h-[100dvh] tracking-wide">
-            <CosmicBackground />
-            <LanguageGate localLocale={localLocale}>
-              <>
-                <GlobalNode />
-                <div className="relative z-[10]">{children}</div>
-              </>
-            </LanguageGate>
-          </div>
+          <TradeIntentProvider>
+            <LocaleHtmlLang />
+            <div className="cosmic-root min-h-[100dvh] tracking-wide">
+              <CosmicBackground />
+              <LanguageGate>
+                <>
+                  <GlobalNode />
+                  <div className="relative z-[10]">{children}</div>
+                </>
+              </LanguageGate>
+            </div>
+          </TradeIntentProvider>
         </PriceProvider>
       </Providers>
       <DevBrowserHint />

@@ -20,7 +20,7 @@ export function GlobalNode() {
           viewBox="0 0 64 64"
           width="64"
           height="64"
-          className="h-full w-full drop-shadow-[0_0_14px_rgba(34,211,238,0.65)]"
+          className="h-full w-full drop-shadow-[0_0_14px_rgba(16,185,129,0.65)]"
           fill="none"
           aria-hidden
         >
@@ -28,7 +28,7 @@ export function GlobalNode() {
             cx="32"
             cy="32"
             r="22"
-            stroke="#22d3ee"
+            stroke="#10b981"
             strokeWidth="1.1"
             opacity="0.95"
           />
@@ -37,7 +37,7 @@ export function GlobalNode() {
             cy="32"
             rx="22"
             ry="9"
-            stroke="#38bdf8"
+            stroke="#34d399"
             strokeWidth="0.9"
             opacity="0.9"
           />
@@ -46,7 +46,7 @@ export function GlobalNode() {
             cy="32"
             rx="9"
             ry="22"
-            stroke="#38bdf8"
+            stroke="#34d399"
             strokeWidth="0.9"
             opacity="0.9"
           />
@@ -55,7 +55,7 @@ export function GlobalNode() {
             cy="32"
             rx="22"
             ry="15"
-            stroke="#67e8f9"
+            stroke="#6ee7b7"
             strokeWidth="0.65"
             opacity="0.55"
             transform="rotate(52 32 32)"
@@ -65,12 +65,12 @@ export function GlobalNode() {
             cy="32"
             rx="22"
             ry="15"
-            stroke="#67e8f9"
+            stroke="#6ee7b7"
             strokeWidth="0.65"
             opacity="0.55"
             transform="rotate(-38 32 32)"
           />
-          <circle cx="32" cy="32" r="2.5" fill="#a5f3fc" opacity="0.95" />
+          <circle cx="32" cy="32" r="2.5" fill="#a7f3d0" opacity="0.95" />
         </svg>
       </div>
     </div>

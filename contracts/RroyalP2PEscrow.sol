@@ -26,13 +26,25 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
         Cancelled
     }
 
+    enum PricingMode {
+        LinkedOfficial,
+        CustomFixed
+    }
+
     struct Trade {
         address seller;
         address buyer;
         uint256 usdtAmount;
         uint256 fiatAmount;
+        /// @notice Snapshot of quoted fiat per 1 USDT, scaled by 1e6.
+        uint256 rateSnapshotE6;
+        PricingMode pricingMode;
         FiatCurrency fiatCurrency;
         TradeStatus status;
+        /// @notice Timestamp when order is created.
+        uint64 createdAt;
+        /// @notice Price-lock expiry deadline. After this, trade must be cancelled/requoted.
+        uint64 expiresAt;
         /// @notice Set when status becomes Locked; used for the 15-minute release window logic.
         uint64 lockedAt;
     }
@@ -54,6 +66,8 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
 
     /// @dev After lock, if not completed or disputed, anyone may cancel after this duration.
     uint256 public constant RELEASE_TIMEOUT = 15 minutes;
+    /// @dev Quote stays fixed for this long from initiation.
+    uint256 public constant PRICE_LOCK_WINDOW = 15 minutes;
 
     event TradeCreated(
         uint256 indexed orderId,
@@ -61,7 +75,10 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
         address indexed buyer,
         uint256 usdtAmount,
         uint256 fiatAmount,
-        FiatCurrency fiatCurrency
+        FiatCurrency fiatCurrency,
+        PricingMode pricingMode,
+        uint256 rateSnapshotE6,
+        uint64 expiresAt
     );
     event TradeLocked(uint256 indexed orderId, address indexed seller, uint256 usdtAmount, uint64 lockedAt);
     event USDTReleased(uint256 indexed orderId, address indexed buyer, uint256 amount);
@@ -78,6 +95,7 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
     error TierLimitExceeded();
     error InvalidTier();
     error TimeoutNotReached();
+    error PriceLockExpired();
 
     constructor(IERC20 usdtToken, address initialOwner) Ownable(initialOwner) {
         if (address(usdtToken) == address(0) || initialOwner == address(0)) {
@@ -111,10 +129,13 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
         address buyer,
         uint256 usdtAmount,
         uint256 fiatAmount,
-        FiatCurrency fiatCurrency
+        FiatCurrency fiatCurrency,
+        PricingMode pricingMode,
+        uint256 rateSnapshotE6
     ) external nonReentrant returns (uint256 orderId) {
         if (buyer == address(0) || buyer == msg.sender) revert ZeroAddress();
         if (usdtAmount == 0) revert ZeroAmount();
+        if (rateSnapshotE6 == 0) revert ZeroAmount();
         _requireTierLimit(msg.sender, usdtAmount);
 
         orderId = ++nextOrderId;
@@ -123,11 +144,15 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
         t.buyer = buyer;
         t.usdtAmount = usdtAmount;
         t.fiatAmount = fiatAmount;
+        t.rateSnapshotE6 = rateSnapshotE6;
+        t.pricingMode = pricingMode;
         t.fiatCurrency = fiatCurrency;
         t.status = TradeStatus.Pending;
+        t.createdAt = uint64(block.timestamp);
+        t.expiresAt = uint64(block.timestamp + PRICE_LOCK_WINDOW);
         t.lockedAt = 0;
 
-        emit TradeCreated(orderId, msg.sender, buyer, usdtAmount, fiatAmount, fiatCurrency);
+        emit TradeCreated(orderId, msg.sender, buyer, usdtAmount, fiatAmount, fiatCurrency, pricingMode, rateSnapshotE6, t.expiresAt);
     }
 
     /// @notice Step 2: Seller locks USDT; trade becomes Locked and the 15-minute window starts.
@@ -149,10 +174,13 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
         uint256 usdtAmount,
         address buyer,
         uint256 fiatAmount,
-        FiatCurrency fiatCurrency
+        FiatCurrency fiatCurrency,
+        PricingMode pricingMode,
+        uint256 rateSnapshotE6
     ) external nonReentrant returns (uint256 orderId) {
         if (buyer == address(0) || buyer == msg.sender) revert ZeroAddress();
         if (usdtAmount == 0) revert ZeroAmount();
+        if (rateSnapshotE6 == 0) revert ZeroAmount();
         _requireTierLimit(msg.sender, usdtAmount);
 
         orderId = ++nextOrderId;
@@ -161,13 +189,17 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
         t.buyer = buyer;
         t.usdtAmount = usdtAmount;
         t.fiatAmount = fiatAmount;
+        t.rateSnapshotE6 = rateSnapshotE6;
+        t.pricingMode = pricingMode;
         t.fiatCurrency = fiatCurrency;
         t.status = TradeStatus.Locked;
+        t.createdAt = uint64(block.timestamp);
+        t.expiresAt = uint64(block.timestamp + PRICE_LOCK_WINDOW);
         t.lockedAt = uint64(block.timestamp);
 
         usdt.safeTransferFrom(msg.sender, address(this), usdtAmount);
 
-        emit TradeCreated(orderId, msg.sender, buyer, usdtAmount, fiatAmount, fiatCurrency);
+        emit TradeCreated(orderId, msg.sender, buyer, usdtAmount, fiatAmount, fiatCurrency, pricingMode, rateSnapshotE6, t.expiresAt);
         emit TradeLocked(orderId, msg.sender, usdtAmount, t.lockedAt);
     }
 
@@ -176,6 +208,7 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
         Trade storage t = trades[orderId];
         if (t.status != TradeStatus.Locked) revert InvalidState();
         if (msg.sender != t.seller) revert NotSeller();
+        if (block.timestamp > uint256(t.expiresAt)) revert PriceLockExpired();
 
         t.status = TradeStatus.Completed;
         usdt.safeTransfer(t.buyer, t.usdtAmount);
@@ -187,7 +220,9 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
     function cancelTrade(uint256 orderId) external nonReentrant {
         Trade storage t = trades[orderId];
         if (t.status != TradeStatus.Locked) revert InvalidState();
-        if (block.timestamp < uint256(t.lockedAt) + RELEASE_TIMEOUT) revert TimeoutNotReached();
+        bool lockTimedOut = block.timestamp >= uint256(t.lockedAt) + RELEASE_TIMEOUT;
+        bool quoteExpired = block.timestamp >= uint256(t.expiresAt);
+        if (!lockTimedOut && !quoteExpired) revert TimeoutNotReached();
 
         uint256 amt = t.usdtAmount;
         address seller = t.seller;
@@ -196,6 +231,15 @@ contract RroyalP2PEscrow is Ownable, ReentrancyGuard {
         usdt.safeTransfer(seller, amt);
 
         emit TradeCancelled(orderId, seller, amt);
+    }
+
+    /// @notice Cancel pending quote after price-lock expiry. No funds are held in Pending.
+    function expirePendingTrade(uint256 orderId) external nonReentrant {
+        Trade storage t = trades[orderId];
+        if (t.status != TradeStatus.Pending) revert InvalidState();
+        if (block.timestamp < uint256(t.expiresAt)) revert TimeoutNotReached();
+        t.status = TradeStatus.Cancelled;
+        emit TradeCancelled(orderId, t.seller, 0);
     }
 
     /// @notice Buyer or seller freezes the trade for manual admin review.

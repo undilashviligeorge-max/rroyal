@@ -4,15 +4,16 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
   variable: "--font-inter",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "RROYAL DEX — P2P USDT Exchange",
+  title: "SMRT / MONEY — Quantum Jump Protocol for Zero-Fee Global Transfers",
   description:
-    "Global P2P infrastructure: transparent rates, on-chain escrow, local fiat.",
+    "P2P global money transfer and exchange. Smart Mid-Point rates — better than banks and exchange offices. Transparent 0.2% platform fee. On-chain escrow.",
+  keywords: ["P2P", "exchange", "USDT", "GEL", "Smart Rate", "zero fee", "blockchain"],
 };
 
 export default function RootLayout({
@@ -26,7 +27,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} h-full`}
     >
-      <body className="flex min-h-full flex-col bg-[#050505] antialiased">{children}</body>
+      <body className="flex min-h-full flex-col bg-[#050d14] antialiased">{children}</body>
     </html>
   );
 }
